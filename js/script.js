@@ -35,10 +35,10 @@ function switchChannel(channelObject) {
         + '</strong></a>';
 
     /* #7 remove either class */
-    $('#chat h1 i').removeClass('far fas');
+    $('#chat h1 button i').removeClass('far fas');
 
     /* #7 set class according to object property */
-    $('#chat h1 i').addClass(channelObject.starred ? 'fas' : 'far');
+    $('#chat h1 button i').addClass(channelObject.starred ? 'fas' : 'far');
 
 
     /* highlight the selected #channel.
@@ -54,8 +54,8 @@ function switchChannel(channelObject) {
 function star() {
     // Toggling star
     // #7 replace image with icon
-    $('#chat h1 i').toggleClass('fas');
-    $('#chat h1 i').toggleClass('far');
+    $('#chat h1 button i').toggleClass('fas');
+    $('#chat h1 button i').toggleClass('far');
 
     // #7 toggle star also in data model
     currentChannel.starred = !currentChannel.starred;
@@ -140,7 +140,7 @@ function createMessageElement(messageObject) {
         messageObject.createdOn.toLocaleString() +
         '<em>' + expiresIn+ ' min. left</em></h3>' +
         '<p>' + messageObject.text + '</p>' +
-        '<button>+5 min.</button>' +
+        '<button class="accent">+5 min.</button>' +
         '</div>';
 }
 
