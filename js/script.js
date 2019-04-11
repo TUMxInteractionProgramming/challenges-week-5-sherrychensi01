@@ -106,11 +106,16 @@ function sendMessage() {
     //var message = new Message("Hello chatter");
 
     // #8 let's now use the real message #input
-    var message = new Message($('#message').val());
-    console.log("New message:", message);
-
+    var text= $('#message').val()
+        if(text.length==0){
+            alert("Please enter some text");
+            return ;
+    }
+    var message = new Message(text);
     // #8 convenient message append with jQuery:
     $('#messages').append(createMessageElement(message));
+    currentChannel.messages.push(message);
+    currentChannel.messageCount+=1;
 
     // #8 messages will scroll to a certain point if we apply a certain height, in this case the overall scrollHeight of the messages-div that increases with every message;
     // it would also scroll to the bottom when using a very high number (e.g. 1000000000);
@@ -144,17 +149,31 @@ function createMessageElement(messageObject) {
         '</div>';
 }
 
-
-function listChannels() {
+var channels=[
+    yummy,
+    sevencontinents,
+    killerapp,
+    firstpersononmars,
+    octoberfest
+]
+function compareNew(channelA, channelB){
+    return (channelA.createdOn-channelB.createdOn);
+}
+function compareTrending(channelA,channelB){
+    return (channelA.messageCount-channelB.messageCount);
+}
+function compareFavorites(channelA, channelB){
+    return channelA.starred?-1:1
+}
+function listChannels(criterion) {
     // #8 channel onload
     //$('#channels ul').append("<li>New Channel</li>")
-
+    $('#channels ul').empty(); 
+    channels.sort(criterion);
     // #8 five new channels
-    $('#channels ul').append(createChannelElement(yummy));
-    $('#channels ul').append(createChannelElement(sevencontinents));
-    $('#channels ul').append(createChannelElement(killerapp));
-    $('#channels ul').append(createChannelElement(firstpersononmars));
-    $('#channels ul').append(createChannelElement(octoberfest));
+    for(i=0;i<channels.length;i++){
+    $('#channels ul').append(createChannelElement(channels[i]));
+   }
 }
 
 /**
@@ -193,3 +212,72 @@ function createChannelElement(channelObject) {
     // return the complete channel
     return channel;
 }
+function LoadEmojis() {
+    var emojis = require('emojis-list');
+    $('#emojis').empty();
+    for (emoji in emojis) {
+        $('#emojis').append(emojis[emoji] + " ");
+    }
+}
+function addChannel(){
+    $('#messages').empty();
+    $('#app-bar-old').hide();
+    $('#send-button').hide();
+    $('#create-button').show();
+    $('#app-bar-new').addClass('show');
+}
+function abort(){
+    $('#messages').show();
+    $('#app-bar-new').removeClass('show');
+    $('#app-bar-old').show();
+    $('#create-button').hide();
+    $('#send-button').show();
+}
+function Channel(name) {
+    // copy my location
+    this.createdBy = currentLocation.what3words;
+    // set dates
+    this.createdOn = new Date(); //now
+    this.expiresIn = 60; // this is just temporary
+    // set name
+    this.name = name;
+    // set favourite
+    this.starred = false;
+    // set messages array and message count
+    this.messages = [];
+    this.messageCount = 0;
+}
+
+function createChannel(){
+    var name = $('#new-channel').val();
+    var text = $('#message').val();
+    if (name.length == 0 || name.search(" ") > -1 || name.search("#") == -1){
+        alert('Enter valid channel name!("#"at the beginning, no spaces)');
+        return;
+    } else if(!text){
+        alert('Enter an initial message!'); 
+        return;
+    } else{
+        var channel = new Channel(name);
+        currentChannel= channel;
+        channels.push(channel);
+        $('#channels ul').append(createChannelElement(channel));
+        // Log channel creation.
+        console.log('New channel: ' + channel);
+        // Send initial message.
+        sendMessage();
+        // Empty channel name input field.
+        $('#new-channel').val('');
+        // Return to normal view.
+        abort();
+        // #show #new channel's data
+        document.getElementById('channel-name').innerHTML = channel.name;
+        document.getElementById('channel-location').innerHTML = 'by <a href="http://w3w.co/'
+            + channel.createdBy
+            + '" target="_blank"><strong>'
+            + channel.createdBy
+            + '</strong></a>';
+    }
+
+    }
+
